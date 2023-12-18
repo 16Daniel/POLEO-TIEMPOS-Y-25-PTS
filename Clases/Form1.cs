@@ -296,7 +296,7 @@ namespace Clases
                     con.Open();
                     SqlDataAdapter consulta2 = new SqlDataAdapter();
                     DataSet datos2 = new DataSet();
-                    consulta2.SelectCommand = new SqlCommand("SELECT  TOP (100) IDCOMANDA, CODARTICULO, ORDEN, POSICION, TERMINAL, HORA, DESCRIPCION, UNIDADES, UDSRECIBIDAS AS MINUTOS, TEMPORAL AS ENTIEMPO FROM LISTACOCINA WHERE (UDSRECIBIDAS <= 30 AND UDSRECIBIDAS >= 1) AND (UDSPREPARADAS = 0) AND (HORA >= CONVERT(DATETIME, '" + ConfigurationManager.AppSettings["dia"] + " 00:00:00', 102))", con);
+                    consulta2.SelectCommand = new SqlCommand("SELECT  TOP (100) IDCOMANDA, CODARTICULO, ORDEN, POSICION, TERMINAL, HORA, DESCRIPCION, UNIDADES, UDSRECIBIDAS AS MINUTOS, TEMPORAL AS ENTIEMPO FROM LISTACOCINA WHERE ((UDSRECIBIDAS <= 30 AND UDSRECIBIDAS >= 1) OR (UDSRECIBIDAS = -1)) AND (UDSPREPARADAS = 0) AND (HORA >= CONVERT(DATETIME, '" + ConfigurationManager.AppSettings["dia"] + " 00:00:00', 102))", con);
 
 
                     consulta2.Fill(datos2);
@@ -339,7 +339,7 @@ namespace Clases
 
                                 con.Open();
                                 SqlDataAdapter query = new SqlDataAdapter();
-                                query.UpdateCommand = new SqlCommand("UPDATE TOP (100) LISTACOCINA SET  UDSPREPARADAS = 1 WHERE (UDSRECIBIDAS <= 30 AND UDSRECIBIDAS >= 1) AND (UDSPREPARADAS = 0) AND (HORA >= CONVERT(DATETIME, '" + ConfigurationManager.AppSettings["dia"] + " 00:00:00', 102))", con);
+                                query.UpdateCommand = new SqlCommand("UPDATE TOP (100) LISTACOCINA SET  UDSPREPARADAS = 1 WHERE ((UDSRECIBIDAS <= 30 AND UDSRECIBIDAS >= 1) OR (UDSRECIBIDAS = -1)) AND (UDSPREPARADAS = 0) AND (HORA >= CONVERT(DATETIME, '" + ConfigurationManager.AppSettings["dia"] + " 00:00:00', 102))", con);
 
 
 
