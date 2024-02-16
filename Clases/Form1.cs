@@ -225,8 +225,8 @@ namespace Clases
         {
             if (textBoxContraseña.Text == "172106")
             {
-                ServidorConex frm = new ServidorConex();
-                frm.Show(this);
+                Opciones op = new Opciones();
+                op.Show(this);
                 this.Hide();
             }
             else

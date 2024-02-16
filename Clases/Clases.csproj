@@ -78,12 +78,30 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiRest\DBApi.cs" />
+    <Compile Include="Ejecutar.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Ejecutar.Designer.cs">
+      <DependentUpon>Ejecutar.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Opciones.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Opciones.Designer.cs">
+      <DependentUpon>Opciones.cs</DependentUpon>
+    </Compile>
     <Compile Include="ServidorConex.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="ServidorConex.Designer.cs">
       <DependentUpon>ServidorConex.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Ejecutar.resx">
+      <DependentUpon>Ejecutar.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Opciones.resx">
+      <DependentUpon>Opciones.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ServidorConex.resx">
       <DependentUpon>ServidorConex.cs</DependentUpon>
     </EmbeddedResource>
@@ -141,6 +159,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="log\" />
+    <Folder Include="Resources\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
