@@ -51,7 +51,7 @@ namespace Clases
             {
                 InitializeComponent();
                 con = dirCon.crearConexion();
-                Log oLog = new Log(@"C:\Log Poleo(Tiempos y 25 pts)\");
+                Log oLog = new Log(@"C:\Log Poleo(Tiempos, 25 pts y Mermas)\");
                 oLog.Add("Se inicio el servicio... ");
 
             }
@@ -59,7 +59,7 @@ namespace Clases
             {
                 MessageBox.Show("CONFIGURA SERVIDOR", "CONEXION");
                 InitializeComponent();
-                Log oLog = new Log(@"C:\Log Poleo(Tiempos y 25 pts)\");
+                Log oLog = new Log(@"C:\Log Poleo(Tiempos, 25 pts y Mermas)\");
                 oLog.Add("Falta configurar Servidor... ");
             }
         }
@@ -72,14 +72,133 @@ namespace Clases
             MostrarNotificacion("El proceso se ha finalizado.");
         }
 
-        public void enviartiemposEncocina()
+        public void enviarmermas()
         {
-            Log oLog = new Log(@"C:\Log Poleo(Tiempos y 25 pts)\");
+            Log oLog = new Log(@"C:\Log Poleo(Tiempos, 25 pts y Mermas)\");
 
             if (true)
             {
 
-                //oLog.Add("inicia carga tiempos... ");
+                oLog.Add("inicia carga mermas... ");
+                var FECH1 = ConfigurationManager.AppSettings["dia"].ToString();
+                var FECH2 = ConfigurationManager.AppSettings["dia"];
+                try
+                {
+
+
+                    var envioTodo = false;
+                    while (envioTodo != true)
+                    {
+                        con.Open();
+                        SqlDataAdapter consulta2 = new SqlDataAdapter();
+                        DataSet datos2 = new DataSet();
+
+                        string stringquery = " SELECT    TOP (100) ID, FECHA, SERIE, NUMERO, CODARTICULO, REFERENCIA, DESCRIPCION, UNIDADES, PRECIO, JUSTIFICACION, COMENTARIOS, USUARIO, ENVIADO   FROM  TMERMAS WHERE  (ENVIADO IS NULL) AND (CONVERT(DATE,HORA, 102) BETWEEN CONVERT(DATE, '" + fechai.ToString("yyyy-MM-dd HH:mm:ss") + "', 102) AND CONVERT(DATE,'" + fechaf.ToString("yyyy-MM-dd HH:mm:ss") + "', 102))";
+
+                        // oLog.Add("consulta... " + stringquery);
+                        consulta2.SelectCommand = new SqlCommand(stringquery, con);
+
+
+                        consulta2.Fill(datos2);
+
+                        con.Close();
+                        //oLog.Add("tiempos... " + datos2.Tables[0].Rows.Count);
+
+                        if (datos2.Tables[0].Rows.Count > 0)
+                        {
+
+                            var empList = datos2.Tables[0].AsEnumerable().DefaultIfEmpty()
+                             .Select(dataRow => new Tiempos
+                             {
+
+                                 Id = 0,
+                                 IdComanda = dataRow.Field<int>("IDCOMANDA"),
+                                 CodArticulo = dataRow.Field<int>("CODARTICULO"),
+                                 Orden = dataRow.Field<int>("ORDEN"),
+                                 Posicion = dataRow.Field<int>("POSICION"),
+                                 Terminal = dataRow.Field<string>("TERMINAL"),
+                                 Hora = Convert.ToString(dataRow.Field<DateTime>("HORA").ToString("O")),
+                                 Descripcion = dataRow.Field<string>("DESCRIPCION"),
+                                 Unidades = dataRow.Field<double>("UNIDADES"),
+                                 Minutos = dataRow.Field<double>("MINUTOS"),
+                                 EnTiempo = dataRow.Field<string>("ENTIEMPO"),
+                                 Sucursal = ConfigurationManager.AppSettings["sucursal"],
+                             }).ToList();
+
+
+
+                            var json = JsonConvert.SerializeObject(empList);
+                            try
+                            {
+
+                                dynamic respuesta = dBApi.Post("https://opera.no-ip.net/back/api_rebel_wings/api/Dashboard/envio_tiempos", json);
+                                if (respuesta.success.ToString() == "True")
+                                {
+                                    oLog.Add("Se enviaron los registros de Mermas con exito... " + datos2.Tables[0].Rows.Count);
+
+                                    con.Open();
+                                    SqlDataAdapter query = new SqlDataAdapter();
+                                    query.UpdateCommand = new SqlCommand("UPDATE TOP (100) LISTACOCINA SET  UDSPREPARADAS = 1 WHERE ((UDSRECIBIDAS <= 30 AND UDSRECIBIDAS >= 1) OR (UDSRECIBIDAS = -1)) AND (UDSPREPARADAS = 0) AND (CONVERT(DATE,HORA, 102) BETWEEN CONVERT(DATE, '" + fechai.ToString("yyyy-MM-dd HH:mm:ss") + "', 102) AND CONVERT(DATE,'" + fechaf.ToString("yyyy-MM-dd HH:mm:ss") + "', 102))", con);
+
+
+
+                                    try
+                                    {
+
+                                        query.UpdateCommand.ExecuteNonQuery();
+
+                                        con.Close();
+
+
+
+                                    }
+                                    catch
+                                    {
+                                        con.Close();
+                                        oLog.Add("Error al actualizar status de registros enviados Mermas... ");
+                                    }
+                                }
+                                else
+                                {
+                                    oLog.Add("Problemas con la conexion al servidor API... ");
+                                }
+                            }
+                            catch
+                            {
+
+                                oLog.Add("Error Mermas posst API... ");
+                            }
+
+                        }
+                        else
+                        {
+                            oLog.Add("finaliza carga mermas... ");
+                            envioTodo = true;
+                        }
+
+                    }
+
+                    // XmlsaveTiempos();
+                    // oLog.Add("inicia timer... ");
+
+                }
+                catch (Exception ex)
+                {
+                    oLog.Add("Ocurrio un Error: " + ex);
+                    con.Close();
+                    MessageBox.Show("Ocurrio un Error: " + ex);
+                }
+            }
+        }
+
+        public void enviartiemposEncocina()
+        {
+            Log oLog = new Log(@"C:\Log Poleo(Tiempos, 25 pts y Mermas)\");
+
+            if (true)
+            {
+
+                oLog.Add("inicia carga tiempos... ");
                 var FECH1 = ConfigurationManager.AppSettings["dia"].ToString();
                 var FECH2 = ConfigurationManager.AppSettings["dia"];
                 try
@@ -233,7 +352,7 @@ namespace Clases
 
         public void enviar25pts() 
         {
-            Log oLog = new Log(@"C:\Log Poleo(Tiempos y 25 pts)\");
+            Log oLog = new Log(@"C:\Log Poleo(Tiempos, 25 pts y Mermas)\");
             if (true)
             {
 
