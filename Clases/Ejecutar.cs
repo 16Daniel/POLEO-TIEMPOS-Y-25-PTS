@@ -247,7 +247,7 @@ namespace Clases
                         con.Open();
                         SqlDataAdapter consulta = new SqlDataAdapter();
                         DataSet datos = new DataSet();
-                        consulta.SelectCommand = new SqlCommand("SELECT TOP (100) FECHAINI, SALA, MESA, TOTAL_AYC, COBROS, COBROS_MINIMOS, DIFERENCIA, JUSTIFICACION, USUARIO FROM TAYC25 WHERE (ENVIADO IS NULL) AND (CONVERT(DATE,FECHAINI, 102) BETWEEN CONVERT(DATE, '" + fechai.ToString("yyyy-MM-dd HH:mm:ss") + "', 102) AND CONVERT(DATE,'" + fechaf.ToString("yyyy-MM-dd HH:mm:ss") + "', 102))", con);
+                        consulta.SelectCommand = new SqlCommand("SELECT TOP (100) FECHAINI, SALA, MESA, TOTAL_AYC, COBROS, COBROS_MINIMOS, DIFERENCIA, JUSTIFICACION, USUARIO,VENDEDOR FROM TAYC25 WHERE (ENVIADO IS NULL) AND (CONVERT(DATE,FECHAINI, 102) BETWEEN CONVERT(DATE, '" + fechai.ToString("yyyy-MM-dd HH:mm:ss") + "', 102) AND CONVERT(DATE,'" + fechaf.ToString("yyyy-MM-dd HH:mm:ss") + "', 102))", con);
 
 
                         consulta.Fill(datos);
@@ -271,6 +271,7 @@ namespace Clases
                                  Justificacion = dataRow.Field<string>("JUSTIFICACION"),
                                  Usuario = dataRow.Field<string>("USUARIO"),
                                  Sucursal = ConfigurationManager.AppSettings["sucursal"],
+                                 Vendedor = dataRow.Field<string>("VENDEDOR")
 
                              }).ToList();
 
@@ -280,6 +281,7 @@ namespace Clases
 
 
                             dynamic respuesta = dBApi.Post("https://opera.no-ip.net/back/api_rebel_wings/api/Dashboard/envio_25pts", json);
+                            //dynamic respuesta = dBApi.Post("https://localhost:44308/api/Dashboard/envio_25pts", json);
 
                             if (respuesta.success.ToString() == "True")
                             {

@@ -76,6 +76,7 @@ D:\repositorios git\POLEO-TIEMPOS-Y-25-PTS\Clases\bin\Debug\RestSharp.dll
 D:\repositorios git\POLEO-TIEMPOS-Y-25-PTS\Clases\bin\Debug\Newtonsoft.Json.xml
 D:\repositorios git\POLEO-TIEMPOS-Y-25-PTS\Clases\bin\Debug\RestSharp.xml
 D:\repositorios git\POLEO-TIEMPOS-Y-25-PTS\Clases\obj\Debug\Clases.csproj.AssemblyReference.cache
+D:\repositorios git\POLEO-TIEMPOS-Y-25-PTS\Clases\obj\Debug\Clases.Ejecutar.resources
 D:\repositorios git\POLEO-TIEMPOS-Y-25-PTS\Clases\obj\Debug\Clases.Opciones.resources
 D:\repositorios git\POLEO-TIEMPOS-Y-25-PTS\Clases\obj\Debug\Clases.ServidorConex.resources
 D:\repositorios git\POLEO-TIEMPOS-Y-25-PTS\Clases\obj\Debug\Clases.Form1.resources
@@ -85,4 +86,3 @@ D:\repositorios git\POLEO-TIEMPOS-Y-25-PTS\Clases\obj\Debug\Clases.csproj.CoreCo
 D:\repositorios git\POLEO-TIEMPOS-Y-25-PTS\Clases\obj\Debug\Clases.csproj.CopyComplete
 D:\repositorios git\POLEO-TIEMPOS-Y-25-PTS\Clases\obj\Debug\Clases.exe
 D:\repositorios git\POLEO-TIEMPOS-Y-25-PTS\Clases\obj\Debug\Clases.pdb
-D:\repositorios git\POLEO-TIEMPOS-Y-25-PTS\Clases\obj\Debug\Clases.Ejecutar.resources

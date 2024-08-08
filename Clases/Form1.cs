@@ -133,7 +133,7 @@ namespace Clases
             //' Añadimos un separador
             ContextMenu1.MenuItems.Add("-");
             //' Añadimos el elemento Acerca de...
-            ContextMenu1.MenuItems.Add("&Acerca de...", new EventHandler(this.AcercaDe_Click));
+            ContextMenu1.MenuItems.Add("V3.0", new EventHandler(this.AcercaDe_Click));
             //' Añadimos otro separador
             ContextMenu1.MenuItems.Add("-");
             //' Añadimos la opción de salir
@@ -181,7 +181,7 @@ namespace Clases
         private void AcercaDe_Click(object sender, System.EventArgs e)
         {
             //' Mostrar la información del autor, versión, etc.
-            MessageBox.Show(Application.ProductName + " v" + Application.ProductVersion, "Prueba 2 de NotifyIcon en C#");
+            MessageBox.Show("POLEO V3.0", "VERSIÓN");
         }
         private void Form1_Resize(object sender, System.EventArgs e)
         {
@@ -451,7 +451,7 @@ namespace Clases
                     con.Open();
                     SqlDataAdapter consulta = new SqlDataAdapter();
                     DataSet datos = new DataSet();
-                    consulta.SelectCommand = new SqlCommand("SELECT TOP (100) FECHAINI, SALA, MESA, TOTAL_AYC, COBROS, COBROS_MINIMOS, DIFERENCIA, JUSTIFICACION, USUARIO FROM TAYC25 WHERE (ENVIADO IS NULL) AND (FECHAINI >= CONVERT(DATETIME, '" + ConfigurationManager.AppSettings["dia2"] + " 00:00:00', 102))", con);
+                    consulta.SelectCommand = new SqlCommand("SELECT TOP (100) FECHAINI, SALA, MESA, TOTAL_AYC, COBROS, COBROS_MINIMOS, DIFERENCIA, JUSTIFICACION, USUARIO,VENDEDOR FROM TAYC25 WHERE (ENVIADO IS NULL) AND (FECHAINI >= CONVERT(DATETIME, '" + ConfigurationManager.AppSettings["dia2"] + " 00:00:00', 102))", con);
 
 
                     consulta.Fill(datos);
@@ -475,7 +475,7 @@ namespace Clases
                              Justificacion = dataRow.Field<string>("JUSTIFICACION"),
                              Usuario = dataRow.Field<string>("USUARIO"),
                              Sucursal = ConfigurationManager.AppSettings["sucursal"],
-
+                             Vendedor = dataRow.Field<string>("VENDEDOR") 
                          }).ToList();
 
 
@@ -629,6 +629,6 @@ namespace Clases
         public string Usuario { get; set; }
         public string Sucursal { get; set; }
 
-
+        public string Vendedor { get; set; }    
     }
 }
