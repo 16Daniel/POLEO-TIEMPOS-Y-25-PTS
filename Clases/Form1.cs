@@ -52,14 +52,14 @@ namespace Clases
                     InitializeComponent();
                     con = dirCon.crearConexion();
                     timerIP.Enabled = true;
-                    Log oLog = new Log(@"C:\Log Poleo(Tiempos y 25 pts)\");
+                    Log oLog = new Log(@"C:\Log Poleo(Tiempos, 25 pts y Mermas)\");
                     oLog.Add("Se inicio el servicio... ");
                 }
                 else
                 {
                     MessageBox.Show("CONFIGURA SERVIDOR", "CONEXION");
                     InitializeComponent();
-                    Log oLog = new Log(@"C:\Log Poleo(Tiempos y 25 pts)\");
+                    Log oLog = new Log(@"C:\Log Poleo(Tiempos, 25 pts y Mermas)\");
                     oLog.Add("Falta configurar Servidor... ");
                 }
 
@@ -113,7 +113,7 @@ namespace Clases
             string output = proc.StandardOutput.ReadToEnd();
 
             //string path = HttpContext.Current.Request.MapPath("~/log/log.txt");
-            Log oLog = new Log(@"C:\Log Poleo(Tiempos y 25 pts)\");
+            Log oLog = new Log(@"C:\Log Poleo(Tiempos, 25 pts y Mermas)\");
             oLog.Add("Se ejecuto correctamente " + output);
         }
 
@@ -133,7 +133,7 @@ namespace Clases
             //' Añadimos un separador
             ContextMenu1.MenuItems.Add("-");
             //' Añadimos el elemento Acerca de...
-            ContextMenu1.MenuItems.Add("V3.0", new EventHandler(this.AcercaDe_Click));
+            ContextMenu1.MenuItems.Add("V3.1", new EventHandler(this.AcercaDe_Click));
             //' Añadimos otro separador
             ContextMenu1.MenuItems.Add("-");
             //' Añadimos la opción de salir
@@ -181,7 +181,7 @@ namespace Clases
         private void AcercaDe_Click(object sender, System.EventArgs e)
         {
             //' Mostrar la información del autor, versión, etc.
-            MessageBox.Show("POLEO V3.0", "VERSIÓN");
+            MessageBox.Show("POLEO V3.1", "VERSIÓN");
         }
         private void Form1_Resize(object sender, System.EventArgs e)
         {
@@ -277,7 +277,7 @@ namespace Clases
         private void ServiceEnvioTiempos()
         {
 
-            Log oLog = new Log(@"C:\Log Poleo(Tiempos y 25 pts)\");
+            Log oLog = new Log(@"C:\Log Poleo(Tiempos, 25 pts y Mermas)\");
 
             if (DateTime.Now.Hour >= 23 && DateTime.Now.Minute >= 45)
             {
@@ -394,6 +394,128 @@ namespace Clases
 
         }
 
+        private void ServiceEnvioMermas()
+        {
+
+            Log oLog = new Log(@"C:\Log Poleo(Tiempos, 25 pts y Mermas)\");
+
+            if (DateTime.Now.Hour >= 23 && DateTime.Now.Minute >= 45)
+            {
+                this.timerIP.Stop();
+
+                oLog.Add("inicia carga mermas... ");
+                var FECH1 = ConfigurationManager.AppSettings["dia3"].ToString();
+                var FECH2 = ConfigurationManager.AppSettings["dia3"];
+                try
+                {
+
+
+                    var envioTodo = false;
+                    while (envioTodo != true)
+                    {
+                        con.Open();
+                        SqlDataAdapter consulta2 = new SqlDataAdapter();
+                        DataSet datos2 = new DataSet();
+                        consulta2.SelectCommand = new SqlCommand("SELECT TOP (100) ID, FECHA, SERIE, NUMERO, CODARTICULO, REFERENCIA, DESCRIPCION, UNIDADES, PRECIO, JUSTIFICACION, COMENTARIOS, USUARIO, ENVIADO   FROM  TMERMAS WHERE  (ENVIADO IS NULL) AND (FECHA >= CONVERT(DATETIME, '" + ConfigurationManager.AppSettings["dia3"] + " 00:00:00', 102))", con);
+
+
+                        consulta2.Fill(datos2);
+                        con.Close();
+                        //oLog.Add("tiempos... " + datos2.Tables[0].Rows.Count);
+
+                        if (datos2.Tables[0].Rows.Count > 0)
+                        {
+
+                            var empList = datos2.Tables[0].AsEnumerable().DefaultIfEmpty()
+                             .Select(dataRow => new Mermas
+                             {
+
+                                 Id = 0,
+                                 Fecha = Convert.ToString(dataRow.Field<DateTime>("FECHA").ToString("O")),
+                                 Serie = dataRow.Field<string>("SERIE"),
+                                 Numero = dataRow.Field<int>("NUMERO"),
+                                 Codarticulo = dataRow.Field<int>("CODARTICULO"),
+                                 Referencia = dataRow.Field<string>("REFERENCIA"),
+                                 Descripcion = dataRow.Field<string>("DESCRIPCION"),
+                                 unidades = dataRow.Field<double>("UNIDADES"),
+                                 precio = dataRow.Field<double>("PRECIO"),
+                                 Justificacion = dataRow.Field<string>("JUSTIFICACION"),
+                                 Comentarios = dataRow.Field<string>("COMENTARIOS"),
+                                 Usuario = dataRow.Field<string>("USUARIO"),
+                                 Sucursal = ConfigurationManager.AppSettings["sucursal"],
+                             }).ToList();
+
+
+
+                            var json = JsonConvert.SerializeObject(empList);
+
+
+                            try
+                            {
+
+                                dynamic respuesta = dBApi.Post("https://opera.no-ip.net/back/api_rebel_wings/api/Dashboard/envio_Mermas", json);
+                                //dynamic respuesta = dBApi.Post("https://localhost:44308/api/Dashboard/envio_Mermas", json);
+                                if (respuesta.success.ToString() == "True")
+                                {
+                                    oLog.Add("Se enviaron los registros de Mermas con exito... " + datos2.Tables[0].Rows.Count);
+
+                                    con.Open();
+                                    SqlDataAdapter query = new SqlDataAdapter();
+                                    query.UpdateCommand = new SqlCommand("UPDATE TOP (100) TMERMAS SET ENVIADO = 'T' WHERE  (ENVIADO IS NULL) AND (FECHA >= CONVERT(DATETIME, '" + ConfigurationManager.AppSettings["dia3"] + " 00:00:00', 102))", con);
+
+
+
+                                    try
+                                    {
+
+                                        query.UpdateCommand.ExecuteNonQuery();
+
+                                        con.Close();
+
+
+
+                                    }
+                                    catch
+                                    {
+                                        con.Close();
+                                        oLog.Add("Error al actualizar status de registros enviados Mermas... ");
+                                    }
+                                }
+                                else
+                                {
+                                    oLog.Add("Problemas con la conexion al servidor API... ");
+                                }
+                            }
+                            catch
+                            {
+
+                                oLog.Add("Error Mermas posst API... ");
+                            }
+
+                        }
+                        else
+                        {
+                            oLog.Add("finaliza carga mermas... ");
+                            envioTodo = true;
+                        }
+
+                    }
+
+                    XmlsaveMermas();
+                    this.timerIP.Start();
+                    oLog.Add("inicia timer... ");
+
+                }
+                catch (Exception ex)
+                {
+                    oLog.Add("Ocurrio un Error: " + ex);
+                    con.Close();
+                    this.timerIP.Start();
+                }
+            }
+
+        }
+
         private void XmlsaveTiempos()
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
@@ -434,9 +556,49 @@ namespace Clases
 
         }
 
+        private void XmlsaveMermas()
+        {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            string path = assembly.Location;
+
+            Configuration config = ConfigurationManager.OpenExeConfiguration(path);
+
+            config.Save(ConfigurationSaveMode.Modified);
+
+
+            //
+
+
+            XmlDocument XmlDoc = new XmlDocument();
+            XmlDoc.Load(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+
+            foreach (XmlElement element in XmlDoc.DocumentElement)
+            {
+                if (element.Name.Equals("appSettings"))
+                {
+
+                    foreach (XmlNode node in element.ChildNodes)
+                    {
+
+                        if (node.Attributes[0].Value == "dia3")
+                        {
+                            node.Attributes[1].Value = DateTime.Now.ToString("yyyy-MM-dd");
+                        }
+
+                    }
+
+                }
+
+            }
+            XmlDoc.Save(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+            ConfigurationManager.RefreshSection("appSettings");
+            ConfigurationManager.RefreshSection("connectionStrings");
+
+        }
+
         private void ServiceEnvio25pts()
         {
-            Log oLog = new Log(@"C:\Log Poleo(Tiempos y 25 pts)\");
+            Log oLog = new Log(@"C:\Log Poleo(Tiempos, 25 pts y Mermas)\");
             if (DateTime.Now.Hour >= 23 && DateTime.Now.Minute >= 45)
             {
                 this.timerIP.Stop();
@@ -552,7 +714,7 @@ namespace Clases
 
         private void Principal_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Log oLog = new Log(@"C:\Log Poleo(Tiempos y 25 pts)\");
+            Log oLog = new Log(@"C:\Log Poleo(Tiempos, 25 pts y Mermas)\");
             oLog.Add("Se detuvo el servicio... ");
         }
 
@@ -633,18 +795,20 @@ namespace Clases
     }
     public class Mermas
     {
-        public int Id { get; set; }
-        public string FechaIni { get; set; }
-        public int Sala { get; set; }
-        public int Mesa { get; set; }
-        public int TotalAyc { get; set; }
-        public int Cobros { get; set; }
-        public int CobrosMinimos { get; set; }
-        public int Diferencia { get; set; }
-        public string Justificacion { get; set; }
-        public string Usuario { get; set; }
-        public string Sucursal { get; set; }
 
+        public int Id { get; set; }
+        public string Fecha { get; set; }
+        public string Serie { get; set; }
+        public int Numero { get; set; }
+        public int Codarticulo { get; set; }
+        public string Referencia { get; set; } 
+        public string Descripcion { get; set; } 
+        public double unidades { get; set; }
+        public double precio { get; set; }
+        public string Justificacion { get; set; } 
+        public string Comentarios { get; set; }
+        public string Usuario { get; set; } 
+        public string Sucursal { get; set; } 
 
     }
 }

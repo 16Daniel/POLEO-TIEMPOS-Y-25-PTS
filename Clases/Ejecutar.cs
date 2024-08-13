@@ -69,6 +69,7 @@ namespace Clases
             MostrarNotificacion("El proceso se ha iniciado.");
             enviartiemposEncocina();
             enviar25pts();
+            enviarmermas();
             MostrarNotificacion("El proceso se ha finalizado.");
         }
 
@@ -93,7 +94,7 @@ namespace Clases
                         SqlDataAdapter consulta2 = new SqlDataAdapter();
                         DataSet datos2 = new DataSet();
 
-                        string stringquery = " SELECT    TOP (100) ID, FECHA, SERIE, NUMERO, CODARTICULO, REFERENCIA, DESCRIPCION, UNIDADES, PRECIO, JUSTIFICACION, COMENTARIOS, USUARIO, ENVIADO   FROM  TMERMAS WHERE  (ENVIADO IS NULL) AND (CONVERT(DATE,HORA, 102) BETWEEN CONVERT(DATE, '" + fechai.ToString("yyyy-MM-dd HH:mm:ss") + "', 102) AND CONVERT(DATE,'" + fechaf.ToString("yyyy-MM-dd HH:mm:ss") + "', 102))";
+                        string stringquery = " SELECT    TOP (100) ID, FECHA, SERIE, NUMERO, CODARTICULO, REFERENCIA, DESCRIPCION, UNIDADES, PRECIO, JUSTIFICACION, COMENTARIOS, USUARIO, ENVIADO   FROM  TMERMAS WHERE  (ENVIADO IS NULL) AND (CONVERT(DATE,FECHA, 102) BETWEEN CONVERT(DATE, '" + fechai.ToString("yyyy-MM-dd HH:mm:ss") + "', 102) AND CONVERT(DATE,'" + fechaf.ToString("yyyy-MM-dd HH:mm:ss") + "', 102))";
 
                         // oLog.Add("consulta... " + stringquery);
                         consulta2.SelectCommand = new SqlCommand(stringquery, con);
@@ -108,20 +109,21 @@ namespace Clases
                         {
 
                             var empList = datos2.Tables[0].AsEnumerable().DefaultIfEmpty()
-                             .Select(dataRow => new Tiempos
+                             .Select(dataRow => new Mermas
                              {
 
                                  Id = 0,
-                                 IdComanda = dataRow.Field<int>("IDCOMANDA"),
-                                 CodArticulo = dataRow.Field<int>("CODARTICULO"),
-                                 Orden = dataRow.Field<int>("ORDEN"),
-                                 Posicion = dataRow.Field<int>("POSICION"),
-                                 Terminal = dataRow.Field<string>("TERMINAL"),
-                                 Hora = Convert.ToString(dataRow.Field<DateTime>("HORA").ToString("O")),
+                                 Fecha = Convert.ToString(dataRow.Field<DateTime>("FECHA").ToString("O")),
+                                 Serie = dataRow.Field<string>("SERIE"),
+                                 Numero = dataRow.Field<int>("NUMERO"),
+                                 Codarticulo = dataRow.Field<int>("CODARTICULO"),
+                                 Referencia = dataRow.Field<string>("REFERENCIA"),
                                  Descripcion = dataRow.Field<string>("DESCRIPCION"),
-                                 Unidades = dataRow.Field<double>("UNIDADES"),
-                                 Minutos = dataRow.Field<double>("MINUTOS"),
-                                 EnTiempo = dataRow.Field<string>("ENTIEMPO"),
+                                 unidades = dataRow.Field<double>("UNIDADES"),
+                                 precio = dataRow.Field<double>("PRECIO"),
+                                 Justificacion = dataRow.Field<string>("JUSTIFICACION"),
+                                 Comentarios = dataRow.Field<string>("COMENTARIOS"),
+                                 Usuario = dataRow.Field<string>("USUARIO"),
                                  Sucursal = ConfigurationManager.AppSettings["sucursal"],
                              }).ToList();
 
@@ -131,14 +133,15 @@ namespace Clases
                             try
                             {
 
-                                dynamic respuesta = dBApi.Post("https://opera.no-ip.net/back/api_rebel_wings/api/Dashboard/envio_tiempos", json);
+                                dynamic respuesta = dBApi.Post("https://opera.no-ip.net/back/api_rebel_wings/api/Dashboard/envio_Mermas", json);
+                                //dynamic respuesta = dBApi.Post("https://localhost:44308/api/Dashboard/envio_Mermas", json);
                                 if (respuesta.success.ToString() == "True")
                                 {
                                     oLog.Add("Se enviaron los registros de Mermas con exito... " + datos2.Tables[0].Rows.Count);
 
                                     con.Open();
                                     SqlDataAdapter query = new SqlDataAdapter();
-                                    query.UpdateCommand = new SqlCommand("UPDATE TOP (100) LISTACOCINA SET  UDSPREPARADAS = 1 WHERE ((UDSRECIBIDAS <= 30 AND UDSRECIBIDAS >= 1) OR (UDSRECIBIDAS = -1)) AND (UDSPREPARADAS = 0) AND (CONVERT(DATE,HORA, 102) BETWEEN CONVERT(DATE, '" + fechai.ToString("yyyy-MM-dd HH:mm:ss") + "', 102) AND CONVERT(DATE,'" + fechaf.ToString("yyyy-MM-dd HH:mm:ss") + "', 102))", con);
+                                    query.UpdateCommand = new SqlCommand("UPDATE TOP (100) TMERMAS SET ENVIADO = 'T' WHERE  (ENVIADO IS NULL) AND (CONVERT(DATE,FECHA, 102) BETWEEN CONVERT(DATE, '" + fechai.ToString("yyyy-MM-dd HH:mm:ss") + "', 102) AND CONVERT(DATE,'" + fechaf.ToString("yyyy-MM-dd HH:mm:ss") + "', 102))", con);
 
 
 
@@ -251,6 +254,7 @@ namespace Clases
                             {
 
                                 dynamic respuesta = dBApi.Post("https://opera.no-ip.net/back/api_rebel_wings/api/Dashboard/envio_tiempos", json);
+                                //dynamic respuesta = dBApi.Post("https://localhost:44308/api/Dashboard/envio_tiempos", json);
                                 if (respuesta.success.ToString() == "True")
                                 {
                                     oLog.Add("Se enviaron los registros de Tiempos con exito... " + datos2.Tables[0].Rows.Count);
