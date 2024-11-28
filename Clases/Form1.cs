@@ -133,7 +133,7 @@ namespace Clases
             //' Añadimos un separador
             ContextMenu1.MenuItems.Add("-");
             //' Añadimos el elemento Acerca de...
-            ContextMenu1.MenuItems.Add("V3.1", new EventHandler(this.AcercaDe_Click));
+            ContextMenu1.MenuItems.Add("V3.1.1", new EventHandler(this.AcercaDe_Click));
             //' Añadimos otro separador
             ContextMenu1.MenuItems.Add("-");
             //' Añadimos la opción de salir
@@ -181,7 +181,7 @@ namespace Clases
         private void AcercaDe_Click(object sender, System.EventArgs e)
         {
             //' Mostrar la información del autor, versión, etc.
-            MessageBox.Show("POLEO V3.1", "VERSIÓN");
+            MessageBox.Show("POLEO V3.1.1", "VERSIÓN");
         }
         private void Form1_Resize(object sender, System.EventArgs e)
         {
@@ -254,6 +254,13 @@ namespace Clases
 
                 procStar = 1;
                 ServiceEnvio25pts();
+                procStar = 0;
+            }
+            if (ConfigurationManager.AppSettings["dia3"] != DateTime.Now.ToString("yyyyMMdd") && procStar == 0)
+            {
+
+                procStar = 1;
+                ServiceEnvioMermas();
                 procStar = 0;
             }
         }
